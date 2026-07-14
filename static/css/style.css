@@ -1,0 +1,464 @@
+/* =========================================================
+   TIC TAC TOE — Arcade Cabinet Theme
+   Pixel-art / 8-bit aesthetic layered on top of Tailwind.
+   ========================================================= */
+
+:root {
+  --void: #0b0714;
+  --cabinet: #241539;
+  --panel: #1a1030;
+  --panel-light: #2d1c4a;
+  --cyanx: #4dfff0;
+  --magentao: #ff4da6;
+  --coin: #ffd23f;
+  --ink: #000000;
+  --corner: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  image-rendering: pixelated;
+}
+
+body {
+  font-family: 'VT323', monospace;
+  background: var(--void);
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: none;
+}
+
+/* ---------- Ambient background: grid floor + scanlines ---------- */
+
+.grid-floor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 77, 166, 0.15), transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(77, 255, 240, 0.12), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: auto, auto, 28px 28px, 28px 28px;
+  background-position: 0 0, 0 0, 0 0, 0 0;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ---------- Pixel frame: stepped-corner panels (the signature) ---------- */
+
+.pixel-frame {
+  background: var(--panel);
+  position: relative;
+  clip-path: polygon(
+    var(--corner) 0, calc(100% - var(--corner)) 0,
+    100% var(--corner), 100% calc(100% - var(--corner)),
+    calc(100% - var(--corner)) 100%, var(--corner) 100%,
+    0 calc(100% - var(--corner)), 0 var(--corner)
+  );
+  box-shadow:
+    0 0 0 4px var(--ink),
+    6px 6px 0 0 var(--ink),
+    0 0 24px rgba(77, 255, 240, 0.08);
+}
+
+.pixel-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  clip-path: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 40%);
+  pointer-events: none;
+}
+
+.glass-card {
+  border: 2px solid rgba(77, 255, 240, 0.15);
+}
+
+/* ---------- Header / marquee ---------- */
+
+.marquee {
+  --corner: 6px;
+  background: var(--cabinet);
+  animation: marquee-flicker 4s infinite;
+}
+
+.marquee-text {
+  text-shadow:
+    3px 3px 0 rgba(0, 0, 0, 0.6),
+    0 0 12px currentColor;
+  letter-spacing: 2px;
+}
+
+@keyframes marquee-flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.82; }
+  98% { opacity: 1; }
+  99% { opacity: 0.9; }
+}
+
+.tagline {
+  text-shadow: 0 0 8px rgba(77, 255, 240, 0.5);
+}
+
+/* ---------- Controls panel ---------- */
+
+.control-label {
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Pixel buttons (NES-style bevel) ---------- */
+
+.pixel-btn {
+  --corner: 4px;
+  position: relative;
+  background: var(--panel-light);
+  color: #cbd5e1;
+  border: 3px solid var(--ink);
+  clip-path: polygon(
+    var(--corner) 0, calc(100% - var(--corner)) 0,
+    100% var(--corner), 100% calc(100% - var(--corner)),
+    calc(100% - var(--corner)) 100%, var(--corner) 100%,
+    0 calc(100% - var(--corner)), 0 var(--corner)
+  );
+  box-shadow:
+    4px 4px 0 0 var(--ink),
+    inset -3px -3px 0 0 rgba(0, 0, 0, 0.35),
+    inset 3px 3px 0 0 rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: transform 0.06s steps(1), box-shadow 0.06s steps(1), background 0.15s ease, color 0.15s ease;
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+}
+
+.pixel-btn:hover {
+  background: #3a2560;
+  color: #ffffff;
+}
+
+.pixel-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow:
+    0 0 0 0 var(--ink),
+    inset -3px -3px 0 0 rgba(0, 0, 0, 0.35),
+    inset 3px 3px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+.toggle-btn.active {
+  background: var(--cyanx);
+  color: #0b0714;
+  box-shadow:
+    4px 4px 0 0 var(--ink),
+    inset -3px -3px 0 0 rgba(0, 0, 0, 0.25),
+    inset 3px 3px 0 0 rgba(255, 255, 255, 0.5);
+  text-shadow: none;
+}
+
+.toggle-btn.active .toggle-icon {
+  filter: none;
+}
+
+#difficulty-group.hidden {
+  display: none;
+}
+
+.btn-primary {
+  background: var(--coin);
+  color: #241539;
+}
+
+.btn-primary:hover {
+  background: #ffdf6e;
+  color: #241539;
+}
+
+.btn-secondary {
+  background: var(--panel-light);
+  color: var(--magentao);
+}
+
+/* ---------- Status bar ---------- */
+
+.status-bar {
+  transition: background 0.2s ease;
+}
+
+.turn-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--ink);
+  background: var(--panel-light);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.turn-marker.x {
+  color: var(--cyanx);
+  box-shadow: 0 0 12px rgba(77, 255, 240, 0.6), inset 0 0 8px rgba(77, 255, 240, 0.3);
+}
+
+.turn-marker.o {
+  color: var(--magentao);
+  box-shadow: 0 0 12px rgba(255, 77, 166, 0.6), inset 0 0 8px rgba(255, 77, 166, 0.3);
+}
+
+.status-bar.thinking .turn-text::after {
+  content: '';
+  animation: dots 1s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
+}
+
+.status-bar.thinking {
+  animation: pulse-panel 0.9s ease-in-out infinite;
+}
+
+@keyframes pulse-panel {
+  0%, 100% { box-shadow: 0 0 0 4px var(--ink), 6px 6px 0 0 var(--ink), 0 0 24px rgba(77, 255, 240, 0.08); }
+  50% { box-shadow: 0 0 0 4px var(--ink), 6px 6px 0 0 var(--ink), 0 0 32px rgba(255, 210, 63, 0.35); }
+}
+
+.status-bar.winner-x { box-shadow: 0 0 0 4px var(--ink), 6px 6px 0 0 var(--ink), 0 0 32px rgba(77, 255, 240, 0.5); }
+.status-bar.winner-o { box-shadow: 0 0 0 4px var(--ink), 6px 6px 0 0 var(--ink), 0 0 32px rgba(255, 77, 166, 0.5); }
+.status-bar.draw { box-shadow: 0 0 0 4px var(--ink), 6px 6px 0 0 var(--ink), 0 0 32px rgba(255, 210, 63, 0.5); }
+
+/* ---------- Board (the CRT screen) ---------- */
+
+.crt-screen {
+  background: #05030a;
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(77, 255, 240, 0.04) 0px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+
+.board-container {
+  position: relative;
+}
+
+.board {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.cell {
+  background: var(--panel);
+  border: 3px solid var(--ink);
+  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.4), inset 3px 3px 0 rgba(255, 255, 255, 0.06);
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.1s steps(1);
+  position: relative;
+}
+
+.cell:hover:not(.disabled):not(.occupied) {
+  background: var(--panel-light);
+}
+
+.cell:hover:not(.disabled):not(.occupied)::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+}
+
+.cell.occupied {
+  cursor: default;
+  animation: pop-in 0.15s steps(3) both;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.5); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.cell.x {
+  color: var(--cyanx);
+  text-shadow: 0 0 10px rgba(77, 255, 240, 0.85), 3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+.cell.o {
+  color: var(--magentao);
+  text-shadow: 0 0 10px rgba(255, 77, 166, 0.85), 3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+.cell.disabled {
+  cursor: not-allowed;
+}
+
+.cell.winning-cell {
+  animation: winner-blink 0.5s steps(1) infinite;
+}
+
+@keyframes winner-blink {
+  0%, 100% { background: var(--panel); }
+  50% { background: var(--panel-light); }
+}
+
+.win-line-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#win-line {
+  stroke: var(--coin);
+  stroke-width: 6;
+  stroke-linecap: square;
+  stroke-dasharray: 10 6;
+  filter: drop-shadow(0 0 6px rgba(255, 210, 63, 0.9));
+  opacity: 0;
+}
+
+#win-line.animate {
+  opacity: 1;
+  animation: dash-move 0.6s steps(8) forwards, dash-scroll 1.2s linear infinite 0.6s;
+}
+
+@keyframes dash-move {
+  from { stroke-dashoffset: 300; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes dash-scroll {
+  to { stroke-dashoffset: -32; }
+}
+
+/* ---------- Scoreboard (LCD readout) ---------- */
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+}
+
+.score-item {
+  padding: 6px 2px;
+}
+
+.score-label {
+  letter-spacing: 0.5px;
+}
+
+.score-x .score-label { color: var(--cyanx); }
+.score-draw .score-label { color: var(--coin); }
+.score-o .score-label { color: var(--magentao); }
+
+.score-value {
+  display: inline-block;
+  min-width: 2.2ch;
+  padding: 4px 6px;
+  background: #05030a;
+  border: 2px solid var(--ink);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+.score-x .score-value { color: var(--cyanx); text-shadow: 0 0 8px rgba(77, 255, 240, 0.7); }
+.score-draw .score-value { color: var(--coin); text-shadow: 0 0 8px rgba(255, 210, 63, 0.7); }
+.score-o .score-value { color: var(--magentao); text-shadow: 0 0 8px rgba(255, 77, 166, 0.7); }
+
+.score-bump {
+  animation: score-bump-anim 0.35s steps(4);
+}
+
+@keyframes score-bump-anim {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- Footer ---------- */
+
+.heart {
+  color: var(--magentao);
+  text-shadow: 0 0 6px rgba(255, 77, 166, 0.7);
+}
+
+/* ---------- Confetti canvas ---------- */
+
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* ---------- Accessibility ---------- */
+
+.pixel-btn:focus-visible,
+.cell:focus-visible {
+  outline: 3px solid var(--coin);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 380px) {
+  .marquee-text { letter-spacing: 1px; }
+  .cell { font-size: 1.8rem; }
+}

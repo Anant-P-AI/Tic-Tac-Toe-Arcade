@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Tic Tac Toe against an unbeatable AI. Retro 8-bit arcade cabinet UI.">
+    <meta name="theme-color" content="#0b0714">
+    <title>TIC • TAC • TOE — Arcade Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              void: '#0b0714',
+              cabinet: '#241539',
+              panel: '#1a1030',
+              cyanx: '#4dfff0',
+              magentao: '#ff4da6',
+              coin: '#ffd23f',
+            },
+            fontFamily: {
+              pixel: ['"Press Start 2P"', 'monospace'],
+              term: ['"VT323"', 'monospace'],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-void text-white font-term min-h-screen">
+    <div class="grid-floor" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <div class="app-container max-w-md mx-auto px-4 py-8 relative z-10">
+
+        <header class="header text-center mb-6">
+            <div class="marquee pixel-frame inline-block px-4 py-3 mb-3">
+                <h1 class="font-pixel text-lg sm:text-xl leading-relaxed marquee-text">
+                    <span class="text-cyanx">TIC</span><span class="text-white"> • </span><span class="text-magentao">TAC</span><span class="text-white"> • </span><span class="text-coin">TOE</span>
+                </h1>
+            </div>
+            <p class="tagline font-term text-xl text-cyanx/80 tracking-wide">— insert coin to challenge the CPU —</p>
+        </header>
+
+        <section class="controls-panel glass-card pixel-frame p-4 mb-4" aria-label="Game controls">
+            <div class="control-group mb-4">
+                <label class="control-label font-pixel text-[10px] text-coin block mb-2">MODE</label>
+                <div class="toggle-group grid grid-cols-2 gap-2" id="mode-toggle" role="radiogroup" aria-label="Game mode">
+                    <button class="toggle-btn pixel-btn active font-pixel text-[10px] py-3" data-mode="ai" role="radio" aria-checked="true" id="btn-mode-ai">
+                        <span class="toggle-icon">🤖</span> VS CPU
+                    </button>
+                    <button class="toggle-btn pixel-btn font-pixel text-[10px] py-3" data-mode="pvp" role="radio" aria-checked="false" id="btn-mode-pvp">
+                        <span class="toggle-icon">👥</span> 2 PLAYER
+                    </button>
+                </div>
+            </div>
+            <div class="control-group" id="difficulty-group">
+                <label class="control-label font-pixel text-[10px] text-coin block mb-2">DIFFICULTY</label>
+                <div class="toggle-group grid grid-cols-3 gap-2" id="difficulty-toggle" role="radiogroup" aria-label="AI difficulty">
+                    <button class="toggle-btn pixel-btn font-pixel text-[9px] py-3" data-difficulty="easy" role="radio" aria-checked="false" id="btn-diff-easy">EASY</button>
+                    <button class="toggle-btn pixel-btn font-pixel text-[9px] py-3" data-difficulty="medium" role="radio" aria-checked="false" id="btn-diff-medium">MEDIUM</button>
+                    <button class="toggle-btn pixel-btn active font-pixel text-[9px] py-3" data-difficulty="hard" role="radio" aria-checked="true" id="btn-diff-hard">HARD</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="status-bar glass-card pixel-frame px-4 py-3 mb-4" aria-live="polite">
+            <div class="turn-indicator flex items-center justify-center gap-3">
+                <span class="turn-marker font-pixel text-lg" id="turn-marker">X</span>
+                <span class="turn-text font-term text-2xl" id="turn-text">Your turn</span>
+            </div>
+        </div>
+
+        <section class="board-container pixel-frame crt-screen p-4 mb-4" aria-label="Game board">
+            <div class="board" id="game-board">
+                <button class="cell" data-row="0" data-col="0" aria-label="Row 1, Column 1" id="cell-0-0"></button>
+                <button class="cell" data-row="0" data-col="1" aria-label="Row 1, Column 2" id="cell-0-1"></button>
+                <button class="cell" data-row="0" data-col="2" aria-label="Row 1, Column 3" id="cell-0-2"></button>
+                <button class="cell" data-row="1" data-col="0" aria-label="Row 2, Column 1" id="cell-1-0"></button>
+                <button class="cell" data-row="1" data-col="1" aria-label="Row 2, Column 2" id="cell-1-1"></button>
+                <button class="cell" data-row="1" data-col="2" aria-label="Row 2, Column 3" id="cell-1-2"></button>
+                <button class="cell" data-row="2" data-col="0" aria-label="Row 3, Column 1" id="cell-2-0"></button>
+                <button class="cell" data-row="2" data-col="1" aria-label="Row 3, Column 2" id="cell-2-1"></button>
+                <button class="cell" data-row="2" data-col="2" aria-label="Row 3, Column 3" id="cell-2-2"></button>
+            </div>
+            <svg class="win-line-svg" id="win-line-svg" viewBox="0 0 300 300" aria-hidden="true">
+                <line id="win-line" x1="0" y1="0" x2="0" y2="0" />
+            </svg>
+        </section>
+
+        <section class="scoreboard glass-card pixel-frame p-4 mb-4" aria-label="Score">
+            <div class="score-item score-x">
+                <span class="score-label font-pixel text-[9px] block mb-1">X (YOU)</span>
+                <span class="score-value font-pixel text-xl" id="score-x">0</span>
+            </div>
+            <div class="score-item score-draw">
+                <span class="score-label font-pixel text-[9px] block mb-1">DRAWS</span>
+                <span class="score-value font-pixel text-xl" id="score-draw">0</span>
+            </div>
+            <div class="score-item score-o">
+                <span class="score-label font-pixel text-[9px] block mb-1">O (CPU)</span>
+                <span class="score-value font-pixel text-xl" id="score-o">0</span>
+            </div>
+        </section>
+
+        <div class="actions grid grid-cols-2 gap-3 mb-6">
+            <button class="btn btn-primary pixel-btn font-pixel text-[10px] py-3" id="btn-new-game">
+                <span class="btn-icon">↻</span> NEW GAME
+            </button>
+            <button class="btn btn-secondary pixel-btn font-pixel text-[10px] py-3" id="btn-reset-scores">
+                <span class="btn-icon">✕</span> RESET
+            </button>
+        </div>
+
+        <footer class="footer text-center">
+            <p class="font-term text-lg text-cyanx/60">built with <span class="heart">♥</span> — FastAPI × Tailwind</p>
+        </footer>
+    </div>
+
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
